@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductCategoryController;
+use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,10 +16,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::group(['middleware' => ['auth:sanctum', 'verified']], function(){
 
-Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
+    Route::name('dashboard.')->prefix('dashboard')->group(function(){
+        Route::get('/', [DashboardController::class, 'index'])-> name('index');
+
+        Route::middleware(['admin'])->group(function(){
+            Route::resource('category', ProductCategoryController::class);
+        });
+
+    });
+
+});
